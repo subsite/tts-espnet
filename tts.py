@@ -1,5 +1,4 @@
-
-import os, sys, soundfile, time
+import os, sys, soundfile, time, torch
 from espnet2.bin.tts_inference import Text2Speech
 
 model = "kan-bayashi/ljspeech_vits"
@@ -21,14 +20,14 @@ outfile = os.path.join(outdir, infile_name.split('.')[0] + '.wav')
 
 print(f"Saving speech to {outfile}")
 
-
-
 start = time.time()
-try:
-    text2speech = Text2Speech.from_pretrained(model_tag=model, device="cuda")
+
+text2speech = Text2Speech.from_pretrained(
+    model_tag=model, 
+    device="cuda")
+
+with torch.no_grad():
     wav = text2speech(text)["wav"]
-except UserWarning as w:
-    print("warn")
 
 
 soundfile.write(outfile, wav.view(-1).cpu().numpy(), text2speech.fs, "PCM_16")
